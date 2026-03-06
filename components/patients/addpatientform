@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserPlus, X } from "lucide-react";
+
+export default function AddPatientForm({ onSubmit, onCancel }) {
+    const [formData, setFormData] = useState({
+        patient_id: `P${Date.now()}`,
+        full_name: '',
+        age: '',
+        gender: '',
+        contact_phone: '',
+        contact_email: '',
+        allergies: '',
+        current_medications: '',
+        medical_history: ''
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        const patientData = {
+            ...formData,
+            age: parseInt(formData.age),
+            allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()) : [],
+            current_medications: formData.current_medications ? formData.current_medications.split(',').map(m => m.trim()) : [],
+            medical_history: formData.medical_history ? [{
+                condition: formData.medical_history,
+                diagnosed_date: new Date().toISOString().split('T')[0],
+                notes: ''
+            }] : [],
+            total_analyses: 0,
+            last_visit: new Date().toISOString()
+        };
+
+        onSubmit(patientData);
+    };
+
+    return (
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-teal-600" />
+                        Add New Patient
+                    </CardTitle>
+                    <Button variant="ghost" size="icon" onClick={onCancel}>
+                        <X className="w-4 h-4" />
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="full_name">Full Name *</Label>
+                            <Input
+                                id="full_name"
+                                value={formData.full_name}
+                                onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                                placeholder="John Doe"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="patient_id">Patient ID</Label>
+                            <Input
+                                id="patient_id"
+                                value={formData.patient_id}
+                                onChange={(e) => setFormData({...formData, patient_id: e.target.value})}
+                                readOnly
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="age">Age *</Label>
+                            <Input
+                                id="age"
+                                type="number"
+                                value={formData.age}
+                                onChange={(e) => setFormData({...formData, age: e.target.value})}
+                                placeholder="30"
+                                min="0"
+                                max="150"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="gender">Gender *</Label>
+                            <Select onValueChange={(value) => setFormData({...formData, gender: value})}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="contact_phone">Phone</Label>
+                            <Input
+                                id="contact_phone"
+                                type="tel"
+                                value={formData.contact_phone}
+                                onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
+                                placeholder="+91 98765 43210"
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="contact_email">Email</Label>
+                            <Input
+                                id="contact_email"
+                                type="email"
+                                value={formData.contact_email}
+                                onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+                                placeholder="john@example.com"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="allergies">Allergies (comma-separated)</Label>
+                        <Input
+                            id="allergies"
+                            value={formData.allergies}
+                            onChange={(e) => setFormData({...formData, allergies: e.target.value})}
+                            placeholder="Penicillin, Peanuts"
+                        />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="current_medications">Current Medications (comma-separated)</Label>
+                        <Input
+                            id="current_medications"
+                            value={formData.current_medications}
+                            onChange={(e) => setFormData({...formData, current_medications: e.target.value})}
+                            placeholder="Aspirin, Metformin"
+                        />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="medical_history">Medical History</Label>
+                        <Textarea
+                            id="medical_history"
+                            value={formData.medical_history}
+                            onChange={(e) => setFormData({...formData, medical_history: e.target.value})}
+                            placeholder="Previous conditions, surgeries, etc."
+                            rows={3}
+                        />
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                        <Button type="button" variant="outline" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" className="bg-teal-600 hover:bg-teal-700">
+                            Add Patient
+                        </Button>
+                    </div>
+                </form>
+            </CardContent>
+        </Card>
+    );
+}

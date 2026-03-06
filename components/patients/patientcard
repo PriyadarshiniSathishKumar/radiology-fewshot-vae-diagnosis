@@ -1,0 +1,84 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { User, Calendar, Phone, Mail, FileText } from "lucide-react";
+import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+
+export default function PatientCard({ patient }) {
+    const getAgeColor = (age) => {
+        if (age < 18) return "bg-blue-100 text-blue-800";
+        if (age < 60) return "bg-green-100 text-green-800";
+        return "bg-orange-100 text-orange-800";
+    };
+
+    return (
+        <motion.div
+            whileHover={{ y: -5, scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+        >
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm hover:shadow-teal-500/10">
+                <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                                <User className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">{patient.full_name}</CardTitle>
+                                <p className="text-sm text-slate-500">ID: {patient.patient_id}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Calendar className="w-4 h-4" />
+                            <span>{patient.age} years</span>
+                        </div>
+                        <Badge className={getAgeColor(patient.age)}>
+                            {patient.gender}
+                        </Badge>
+                    </div>
+
+                    {patient.contact_phone && (
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Phone className="w-4 h-4" />
+                            <span>{patient.contact_phone}</span>
+                        </div>
+                    )}
+
+                    {patient.contact_email && (
+                        <div className="flex items-center gap-2 text-sm text-slate-600 truncate">
+                            <Mail className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{patient.contact_email}</span>
+                        </div>
+                    )}
+
+                    <div className="pt-3 border-t flex items-center justify-between">
+                        <div className="text-sm">
+                            <span className="text-slate-500">Analyses: </span>
+                            <span className="font-semibold text-teal-600">{patient.total_analyses || 0}</span>
+                        </div>
+                        {patient.last_visit && (
+                            <span className="text-xs text-slate-500">
+                                Last: {format(new Date(patient.last_visit), 'MMM d')}
+                            </span>
+                        )}
+                    </div>
+
+                    <Link to={`${createPageUrl("PatientDetails")}?id=${patient.id}`}>
+                        <Button variant="outline" className="w-full mt-2">
+                            <FileText className="w-4 h-4 mr-2" />
+                            View Details
+                        </Button>
+                    </Link>
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+}
